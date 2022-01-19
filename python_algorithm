@@ -1,0 +1,70 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+# Calculate the probability of numbers above variable inside the sample
+def p(variable, values_lst):
+    return len([element for element in values_lst if element > variable]) / len(values_lst)
+
+
+# Calculate the average statistics profit by round normalized by bet
+def profit(k, values_lst):
+    return (k * p(k, values_lst)) - 1
+
+
+# Define a vector with only 100 successive results as a sample for test of algorithm
+sample = [1.19, 1, 1.3, 1.10, 1.43, 21.18, 6.90, 1, 1.06, 1.44, 3.94, 6.37, 7.68, 1.51, 1.09, 1.16, 3.28, 5, 29,
+          9.89, 1.11, 2.9, 2.44, 2.29, 4.17, 1.34, 5.35, 4.95, 1, 1.08, 1.7, 2.84, 1.07, 1.34, 4.05, 1.12, 1.1, 33.33,
+          1.53, 1.83, 20.3, 1.70, 3.62, 1.39, 2.28, 4.31, 2.36, 1.32, 1, 1.32, 1.01, 1.29, 1.27, 1.38, 1.04, 1.71, 1.5,
+          1.95, 1.55, 6.43, 13.87, 3.91, 2.93, 1.48, 2.57, 50.57, 1.51, 65.24, 1.01, 1.01, 1.39, 1, 3.39, 2.71, 1.01,
+          2.53, 2.46, 7.3, 1.04, 2.34, 1, 3.31, 1.71, 62.95, 1.93, 8.27, 1.08, 1.83, 3.9, 5.21, 1.08, 1.12, 1.27,
+          2.88, 1.43, 1, 3.07, 1, 40.70]
+
+max_num = max(sample)
+
+# Calculate the element that returns the bigger profit
+X = np.arange(1, max_num+1, 0.01)
+y = []
+
+for i in range(len(X)):
+    y.append(profit(X[i], sample))
+
+max_profit = max(y)
+index_max_profit = y.index(max_profit)
+bet_unit = 1
+
+print(f'Betting R${bet_unit} on variable {round(X[index_max_profit], 2)} for {len(sample)} rounds:\n'
+      f'The profit would be R${round(bet_unit * max_profit * len(sample), 2)}')
+print(round(100 * p(X[index_max_profit], sample), 2), '\b% are equal or above the variable')
+
+# Plotting the graph of profit by betting variable
+fig, (ax1, ax2) = plt.subplots(1, 2)
+ax1.set_title('Profit per variable')
+ax1.grid(True)
+ax1.plot(X, y, 'green')
+ax1.axhline(0, color='red')
+ax1.axvline(1, color='black')
+
+
+def simulator(amt, crash_lst, variable, bet):
+    for crash in crash_lst:
+        amt.append(amt[-1] + ((variable - 1) * bet)) if crash > variable else amt.append(amt[-1] - bet)
+        if amt[-1] <= 0:
+            print('You have no money, @bitch!')
+            break
+    return amt
+
+
+amount = [40]
+amount = simulator(amount, sample, X[index_max_profit], bet_unit)
+
+print(f'final amount {amount[-1]}')
+
+# Plotting the graph of amount
+ax2.set_title('Amount history')
+ax2.grid(True)
+ax2.plot(np.arange(len(amount)), amount, 'green')
+ax2.axhline(0, color='red')
+ax2.axvline(0, color='black')
+
+plt.show()
